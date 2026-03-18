@@ -3,12 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.2.21"
-
     `maven-publish`
 }
 
 group = "dev.hannahpadd"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -70,7 +69,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "dev.hannahpadd"
             artifactId = "dbusglobalshortcutskotlin"
-            version = "1.0.0"
+            version = "0.1.0"
 
             from(components["java"])
         }
