@@ -1,6 +1,5 @@
 package dev.hannah.portals
 
-import APP_ID
 import org.freedesktop.dbus.DBusPath
 import org.freedesktop.dbus.connections.impl.DBusConnection
 import org.freedesktop.dbus.interfaces.DBusSigHandler
@@ -9,6 +8,7 @@ import java.util.concurrent.CountDownLatch
 import kotlin.collections.mutableMapOf
 
 class GlobalShortcutsHandler(
+    appID: String,
     val options: MutableMap<String, Variant<*>>,
     val shortcutsList: MutableList<ShortcutTuple>,
     val connection: DBusConnection,
@@ -39,9 +39,9 @@ class GlobalShortcutsHandler(
     }
 
     init {
-        options["session_handle_token"] = Variant("${APP_ID}${System.currentTimeMillis()}")
+        options["session_handle_token"] = Variant("${appID}${System.currentTimeMillis()}")
         val sender = connection.uniqueName.replaceFirst(":", "").replace(".", "_")
-        expectedRequestPath = "/org/freedesktop/portal/desktop/request/$sender/$APP_ID"
+        expectedRequestPath = "/org/freedesktop/portal/desktop/request/$sender/$appID"
 
         connection.addSigHandler(Request.Response::class.java, globalShortcutsResponseHandler)
     }

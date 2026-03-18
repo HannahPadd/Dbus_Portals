@@ -1,12 +1,13 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import kotlin.run
 
 plugins {
     kotlin("jvm") version "2.2.21"
+
+    `maven-publish`
 }
 
-group = "org.example"
+group = "dev.hannahpadd"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -16,11 +17,12 @@ repositories {
 val dbusTools: Configuration by configurations.creating
 
 dependencies {
-    testImplementation(kotlin("test"))
-
+    implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("com.github.hypfvieh:dbus-java-core:5.2.0")
     implementation("com.github.hypfvieh:dbus-java-transport-jnr-unixsocket:5.2.0")
     dbusTools("com.github.hypfvieh:dbus-java-utils:5.2.0")
+
+    testImplementation(kotlin("test"))
 }
 
 kotlin {
@@ -41,6 +43,38 @@ tasks.withType<JavaCompile> {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+
+gradle.taskGraph.whenReady {
+    tasks.named<Test>("test") {
+        onlyIf {
+            // Run tests only if the 'test' task is invoked directly
+            this@whenReady.hasTask(":test") && !this@whenReady.hasTask(":build") && !this@whenReady.hasTask(":assemble")
+        }
+        useJUnitPlatform()
+    }
+}
+
+tasks {
+    compileKotlin {
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+    }
+    compileTestKotlin {
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "dev.hannahpadd"
+            artifactId = "dbusglobalshortcutskotlin"
+            version = "1.0.0"
+
+            from(components["java"])
+        }
+    }
 }
 
 tasks.register<JavaExec>("generateDbusInterface") {
