@@ -1,20 +1,14 @@
-package dev.hannah.portals
+package dev.hannah.portals.globalShortcuts
 import org.freedesktop.dbus.DBusPath
 import org.freedesktop.dbus.Struct
 import org.freedesktop.dbus.annotations.DBusInterfaceName
-import org.freedesktop.dbus.annotations.DBusProperty
 import org.freedesktop.dbus.interfaces.DBusInterface
 import org.freedesktop.dbus.messages.DBusSignal
-import org.freedesktop.dbus.types.UInt32
 import org.freedesktop.dbus.types.UInt64
 import org.freedesktop.dbus.types.Variant
 import org.freedesktop.dbus.annotations.Position
 import org.freedesktop.dbus.exceptions.DBusException
 
-/**
- * Auto-generated class.
- */
-@DBusProperty(name = "version", type = UInt32::class, access = DBusProperty.Access.READ)
 @DBusInterfaceName("org.freedesktop.portal.GlobalShortcuts")
 interface GlobalShortcuts : DBusInterface {
     fun CreateSession(options: Map<String, Variant<*>>): DBusPath

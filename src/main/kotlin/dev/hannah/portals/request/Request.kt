@@ -1,4 +1,4 @@
-package dev.hannah.portals
+package dev.hannah.portals.request
 
 import org.freedesktop.dbus.annotations.DBusInterfaceName
 import org.freedesktop.dbus.interfaces.DBusInterface
@@ -11,7 +11,7 @@ interface Request : DBusInterface {
     @DBusInterfaceName("org.freedesktop.portal.Request")
     class Response(
         path: String,
-        responseCode: UInt32,
+        val responseCode: UInt32,
         val results: Map<String, Variant<*>>
     ) : DBusSignal(path, responseCode, results)
 }
