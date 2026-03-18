@@ -1,60 +1,54 @@
 package dev.hannah.portals
 
+import APP_ID
 import org.freedesktop.dbus.DBusPath
 import org.freedesktop.dbus.connections.impl.DBusConnection
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder
 import org.freedesktop.dbus.interfaces.DBusSigHandler
 import org.freedesktop.dbus.types.Variant
 import java.util.concurrent.CountDownLatch
+import kotlin.collections.mutableMapOf
 
 class GlobalShortcutsHandler(
-    appId: String
+    val options: MutableMap<String, Variant<*>>,
+    val shortcutsList: MutableList<ShortcutTuple>,
+    val connection: DBusConnection,
+    val requestPath: DBusPath,
 ) {
+    private val expectedRequestPath: String
     private var sessionHandle: DBusPath? = null
-    private val options = mutableMapOf<String, Variant<*>>()
-    private val connection: DBusConnection = DBusConnectionBuilder.forSessionBus().build()
+    private val sessionReady = CountDownLatch(1)
+
     private val globalShortcuts: GlobalShortcuts = connection.getRemoteObject(
         "org.freedesktop.portal.Desktop",
         "/org/freedesktop/portal/desktop",
         GlobalShortcuts::class.java
     )
 
-    private lateinit var requestPath: DBusPath
-
-    private val sessionReady = CountDownLatch(1)
-
-    private val responseHandler = DBusSigHandler<Request.Response> { response ->
+    private val globalShortcutsResponseHandler = DBusSigHandler<Request.Response> { response ->
         println("dev.hannah.portals.Request path: $requestPath")
-        if (response.path != requestPath.toString()) {
+        println("dev.hannah.portals.Request response path: ${expectedRequestPath}")
+        if (response.path != expectedRequestPath) {
             return@DBusSigHandler
         }
 
         val sessionHandleResponse = response.results["session_handle"]?.value as String
         println("Session Handle Response $sessionHandleResponse")
         sessionHandle = DBusPath(sessionHandleResponse)
-
+        globalShortcuts.BindShortcuts(sessionHandle, shortcutsList, "", mutableMapOf())
         sessionReady.countDown()
     }
 
     init {
-        options["handle_token"] = Variant(appId)
-        options["session_handle_token"] = Variant(appId)
-        options["app_id"] = Variant(appId)
+        options["session_handle_token"] = Variant("${APP_ID}${System.currentTimeMillis()}")
+        val sender = connection.uniqueName.replaceFirst(":", "").replace(".", "_")
+        expectedRequestPath = "/org/freedesktop/portal/desktop/request/$sender/$APP_ID"
 
-        connection.addSigHandler(Request.Response::class.java, responseHandler)
+        connection.addSigHandler(Request.Response::class.java, globalShortcutsResponseHandler)
     }
 
     fun createSession() {
-        requestPath = globalShortcuts.CreateSession(options)
+        globalShortcuts.CreateSession(options)
         sessionReady.await()
-    }
-
-    fun bindShortcut(shortCutsList: MutableList<ShortcutTuple>) {
-        globalShortcuts.BindShortcuts(sessionHandle, shortCutsList, "", mutableMapOf())
-    }
-
-    fun listShortcuts() {
-        globalShortcuts.ListShortcuts(sessionHandle, mutableMapOf())
     }
 
     fun close() {

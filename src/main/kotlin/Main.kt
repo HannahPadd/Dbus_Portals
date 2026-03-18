@@ -1,15 +1,20 @@
-import dev.hannah.portals.GlobalShortcutsHandler
+import dev.hannah.portals.PortalManager
 import dev.hannah.portals.ShortcutTuple
 import org.freedesktop.dbus.types.Variant
 
+const val APP_ID = "Slime"
+
 fun main() {
-    val appId = "MyAppID${System.currentTimeMillis()}"
-    val globalShortcutsHandler = GlobalShortcutsHandler(appId)
+    val portalManager = PortalManager()
+    val shortcutsList = mutableListOf(ShortcutTuple(APP_ID, mapOf("description" to Variant("Yaw Reset"))))
+    val globalShortcutsHandler = portalManager.globalShortcutsRequest(shortcutsList)
 
-    val shortcut = mutableListOf(ShortcutTuple("Full_Reset", mapOf("description" to Variant("Yaw Reset"))))
+    Runtime.getRuntime().addShutdownHook(Thread {
+        println("Closing connection")
+        globalShortcutsHandler.close()
+    })
 
-    globalShortcutsHandler.createSession()
-    globalShortcutsHandler.bindShortcut(shortcut)
-    Thread.sleep(20000)
-    globalShortcutsHandler.close()
+    while (true) {
+        Thread.sleep(1000)
+    }
 }
