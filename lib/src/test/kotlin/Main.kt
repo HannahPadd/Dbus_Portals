@@ -1,6 +1,6 @@
 import dev.hannah.portals.PortalManager
 import dev.hannah.portals.globalShortcuts.ShortcutTuple
-import dev.hannah.portals.Shortcut
+import dev.hannah.portals.globalShortcuts.Shortcut
 import kotlin.test.Test
 
 const val APP_ID = "dev.hannah.portals"
@@ -35,6 +35,8 @@ class LibraryTest {
             println("Closing connection")
             globalShortcutsHandler.close()
         })
+
+        portalManager.openGlobalShortcutsSettings()
 
          while (isRunning) {
             globalShortcutsHandler.onShortcutActivated = { shortcutId ->

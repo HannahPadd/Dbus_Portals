@@ -1,4 +1,4 @@
-package dev.hannah.portals
+package dev.hannah.portals.globalShortcuts
 
 import org.freedesktop.dbus.types.Variant
 

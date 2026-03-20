@@ -9,9 +9,9 @@ import java.util.UUID
 import java.util.concurrent.CountDownLatch
 
 class GlobalShortcutsHandler(
-    val options: MutableMap<String, Variant<*>>,
-    val shortcutsList: MutableList<ShortcutTuple>,
     val connection: DBusConnection,
+    val shortcutsList: MutableList<ShortcutTuple>,
+    val options: MutableMap<String, Variant<*>>,
     var onShortcutActivated: ((String) -> Unit)? = null,
     var onShortcutsChanged: ((List<ShortcutTuple>) -> Unit)? = null
 ) {
